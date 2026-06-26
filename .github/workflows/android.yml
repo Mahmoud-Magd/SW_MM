@@ -303,10 +303,12 @@ jobs:
         env:
           SKETCHUB_API_KEY: ${{ secrets.SKETCHUB_API_KEY }}
         run: |
+          chmod +x gradlew
+
           if [ "${{ steps.resolve_build_type.outputs.build_type }}" = "Debug" ]; then
-            gradle assembleDebug
+            ./gradlew assembleDebug
           else
-            gradle assembleRelease
+            ./gradlew assembleRelease
           fi
 
       - name: Set short SHA
