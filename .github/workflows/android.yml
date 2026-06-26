@@ -14,89 +14,332 @@ on:
       - 'settings.gradle'
     branches-ignore:
       - 'wip/**'
+
+  # -------------------------------------------------------
+  # workflow_dispatch allows manual triggering from the
+  # GitHub Actions UI, with user-defined input options.
+  # These inputs act like radio buttons in the UI.
+  # -------------------------------------------------------
   workflow_dispatch:
+    inputs:
+
+      # ---------------------------------------------------
+      # BUILD TYPE
+      # Choose whether to build a Debug or Release APK.
+      #
+      # Debug:
+      #   - Faster build
+      #   - No signing required
+      #   - No ProGuard/minification
+      #   - Best for testing & CI validation
+      #
+      # Release:
+      #   - Full production build
+      #   - Requires signing config & secrets
+      #   - Slower, but production-ready
+      # ---------------------------------------------------
+      build_type:
+        description: 'Which APK variant would you like to build?'
+        required: true
+        default: 'Debug'
+        type: choice
+        options:
+          - Debug
+          - Release
+
+      # ---------------------------------------------------
+      # NOTIFY TELEGRAM (before build starts)
+      # Sends a Telegram message to let the team know
+      # that a new build has been triggered.
+      #
+      # Useful for:
+      #   - Team awareness
+      #   - Tracking CI pipeline activity
+      #
+      # Default: No — notification is opt-in only.
+      # ---------------------------------------------------
+      notify_telegram:
+        description: 'Would you like to send a Telegram notification when the build starts?'
+        required: true
+        default: 'No'
+        type: choice
+        options:
+          - 'No'
+          - 'Yes'
+
+      # ---------------------------------------------------
+      # SEND APK TO TELEGRAM (after build completes)
+      # Uploads and sends the resulting APK file directly
+      # to the configured Telegram chat/topic.
+      #
+      # Useful for:
+      #   - Quick distribution to testers
+      #   - Sharing builds without downloading from GitHub
+      #
+      # Default: No — sending is opt-in only.
+      # ---------------------------------------------------
+      send_to_telegram:
+        description: 'Would you like to send the resulting APK to Telegram after the build?'
+        required: true
+        default: 'No'
+        type: choice
+        options:
+          - 'No'
+          - 'Yes'
+
 
 jobs:
+
+
+
+  # =========================================================
+  # NOTIFY TELEGRAM
+  #
+  # PURPOSE:
+  #   Send a Telegram message before the build starts.
+  #
+  # RUNS WHEN:
+  #   - Triggered by push (always notifies on push)
+  #   - Triggered manually AND notify_telegram == 'Yes'
+  #
+  # SKIPPED WHEN:
+  #   - Triggered manually AND notify_telegram == 'No'
+  # =========================================================
   notifyTelegram:
     name: Notify Telegram
     runs-on: ${{ vars.IS_USING_HOSTED_RUNNERS == 'true' && 'self-hosted' || 'ubuntu-latest' }}
+
+    # Run if:
+    #   - It's a push event (github.event_name != 'workflow_dispatch')
+    #   - OR it's manual and the user chose 'Yes'
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.notify_telegram == 'Yes'
+
     steps:
+
       - uses: actions/checkout@v4
 
+      # ---------------------------------------------------
+      # Setup Python for the notification script
+      # ---------------------------------------------------
       - name: Set up Python 3
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
       - name: Install Dependencies
-        run: |
-          pip install requests
+        run: pip install requests
 
+      # ---------------------------------------------------
+      # Send the Telegram notification
+      # Runs BEFORE the build job starts
+      # ---------------------------------------------------
       - name: Send a message to Telegram
         env:
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TOPIC_ID: ${{ secrets.TELEGRAM_TOPIC_ID }}
-        run: |
-          python ./.github/workflows/notify_telegram.py
+        run: python ./.github/workflows/notify_telegram.py
         continue-on-error: true
 
+
+
+  # =========================================================
+  # BUILD APK
+  #
+  # PURPOSE:
+  #   Compile the APK based on the chosen build type.
+  #
+  # BUILD TYPE LOGIC:
+  #   - push event         → always builds Release (original behavior)
+  #   - manual + Debug     → runs assembleDebug
+  #   - manual + Release   → runs assembleRelease
+  #
+  # Google Services JSON:
+  #   - If secret exists   → uses real config
+  #   - If missing + Debug → injects a safe mock (prevents crash)
+  #   - If missing + Release → build may fail (expected, needs real config)
+  # =========================================================
   build:
-    name: Build APKs
+    name: Build ${{ github.event.inputs.build_type || 'Release' }} APK
     runs-on: ${{ vars.IS_USING_HOSTED_RUNNERS == 'true' && 'self-hosted' || 'ubuntu-latest' }}
+
     outputs:
       short_sha: ${{ steps.set_sha.outputs.short_sha }}
+      # Expose the build type so downstream jobs can reference it
+      build_type: ${{ steps.resolve_build_type.outputs.build_type }}
+
     steps:
+
       - uses: actions/checkout@v4
 
+      # ---------------------------------------------------
+      # Resolve final build type
+      # If triggered by push → default to Release
+      # If triggered manually → use the user's choice
+      # ---------------------------------------------------
+      - name: Resolve build type
+        id: resolve_build_type
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "build_type=${{ github.event.inputs.build_type }}" >> $GITHUB_OUTPUT
+          else
+            echo "build_type=Release" >> $GITHUB_OUTPUT
+          fi
+
+      # ---------------------------------------------------
+      # Java setup — required by Android Gradle Plugin
+      # ---------------------------------------------------
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: 17
           distribution: temurin
 
-      - name: Set environmental variables
+      # ---------------------------------------------------
+      # Inject Google Services JSON
+      #
+      # WHY THIS EXISTS:
+      #   Firebase plugin crashes if google-services.json
+      #   is missing. Debug builds accept a safe mock.
+      #   Release builds should use the real secret.
+      # ---------------------------------------------------
+      - name: Inject Google Services JSON
+        env:
+          JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$JSON_CONTENT" ]; then
+            # Real secret exists — use it for both Debug and Release
+            echo "$JSON_CONTENT" > app/google-services.json
+
+          elif [ "${{ steps.resolve_build_type.outputs.build_type }}" = "Debug" ]; then
+            # No secret, but Debug build — inject minimal mock
+            # PURPOSE:
+            #   Prevent Google Services plugin crash
+            #   No real Firebase needed for debug CI builds
+            mkdir -p app
+            cat > app/google-services.json <<EOF
+          {
+            "project_info": {
+              "project_number": "000000000000",
+              "project_id": "mock-project"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:000000000000:android:mock",
+                  "android_client_info": {
+                    "package_name": "com.mock.app"
+                  }
+                }
+              }
+            ]
+          }
+          EOF
+
+          else
+            # No secret and Release build — warn but continue
+            # The build will likely fail at the Gradle step if Firebase is required
+            echo "WARNING: GOOGLE_SERVICES_JSON secret is missing for a Release build."
+          fi
+
+      # ---------------------------------------------------
+      # Set env vars for Release builds (original behavior)
+      # ---------------------------------------------------
+      - name: Set environmental variables (Release only)
         shell: bash
         env:
           JSON_CONTENT: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        if: ${{ env.JSON_CONTENT != '' }}
+        if: >
+          steps.resolve_build_type.outputs.build_type == 'Release' &&
+          env.JSON_CONTENT != ''
         run: |
           printf 'GOOGLE_SERVICES_JSON<<EOF\n%s\nEOF\n' "$JSON_CONTENT" >> $GITHUB_ENV
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build Release APK
+      # ---------------------------------------------------
+      # BUILD — runs the correct Gradle task based on
+      # the resolved build type
+      # ---------------------------------------------------
+      - name: Build APK
         env:
           SKETCHUB_API_KEY: ${{ secrets.SKETCHUB_API_KEY }}
-        run: gradle assembleRelease
+        run: |
+          chmod +x gradlew
 
+          if [ "${{ steps.resolve_build_type.outputs.build_type }}" = "Debug" ]; then
+            ./gradlew assembleDebug
+          else
+            ./gradlew assembleRelease
+          fi
+
+      # ---------------------------------------------------
+      # Extract short commit SHA for artifact naming
+      # Makes artifacts traceable back to exact commits
+      # ---------------------------------------------------
       - name: Set short SHA
         id: set_sha
         run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
+      # ---------------------------------------------------
+      # Rename APK to include commit SHA
+      # Pattern: app-{debug|release}-{sha}.apk
+      # ---------------------------------------------------
       - name: Rename APK with commit hash
         run: |
-          mv app/build/outputs/apk/release/app-release.apk \
-             app/build/outputs/apk/release/app-release-${{ steps.set_sha.outputs.short_sha }}.apk
+          BUILD_TYPE_LOWER=$(echo "${{ steps.resolve_build_type.outputs.build_type }}" | tr '[:upper:]' '[:lower:]')
+          mv app/build/outputs/apk/${BUILD_TYPE_LOWER}/app-${BUILD_TYPE_LOWER}.apk \
+             app/build/outputs/apk/${BUILD_TYPE_LOWER}/app-${BUILD_TYPE_LOWER}-${{ steps.set_sha.outputs.short_sha }}.apk
 
-      - name: Upload Release APK
+      # ---------------------------------------------------
+      # Upload APK as a GitHub Actions artifact
+      # Available for download from the Actions UI
+      # ---------------------------------------------------
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: apk-release-${{ steps.set_sha.outputs.short_sha }}
-          path: app/build/outputs/apk/release/app-release-${{ steps.set_sha.outputs.short_sha }}.apk
+          name: apk-${{ steps.resolve_build_type.outputs.build_type == 'Debug' && 'debug' || 'release' }}-${{ steps.set_sha.outputs.short_sha }}
+          path: app/build/outputs/apk/${{ steps.resolve_build_type.outputs.build_type == 'Debug' && 'debug' || 'release' }}/app-${{ steps.resolve_build_type.outputs.build_type == 'Debug' && 'debug' || 'release' }}-${{ steps.set_sha.outputs.short_sha }}.apk
 
+
+
+  # =========================================================
+  # SEND APK TO TELEGRAM
+  #
+  # PURPOSE:
+  #   Upload and send the built APK to the configured
+  #   Telegram chat/topic after a successful build.
+  #
+  # RUNS WHEN:
+  #   - Push event (always sends on push — original behavior)
+  #   - Manual trigger AND send_to_telegram == 'Yes'
+  #
+  # SKIPPED WHEN:
+  #   - Manual trigger AND send_to_telegram == 'No'
+  # =========================================================
   aggregateAndSend:
-    name: Send APKs to Telegram
+    name: Send APK to Telegram
     runs-on: ${{ vars.IS_USING_HOSTED_RUNNERS == 'true' && 'self-hosted' || 'ubuntu-latest' }}
     needs: build
+
+    # Run if:
+    #   - It's a push event (original behavior preserved)
+    #   - OR it's manual and the user chose 'Yes'
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.send_to_telegram == 'Yes'
+
     steps:
+
       - uses: actions/checkout@v4
 
-      - name: Download Artifacts
+      # ---------------------------------------------------
+      # Download the artifact built in the build job
+      # The name matches what was uploaded above
+      # ---------------------------------------------------
+      - name: Download APK Artifact
         uses: actions/download-artifact@v4
         with:
-          name: apk-release-${{ needs.build.outputs.short_sha }}
+          name: apk-${{ needs.build.outputs.build_type == 'Debug' && 'debug' || 'release' }}-${{ needs.build.outputs.short_sha }}
           path: ./downloaded-artifact
 
       - name: Set up Python 3
@@ -105,8 +348,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install Dependencies
-        run: |
-          pip install telethon
+        run: pip install telethon
 
       - name: Get Git Commit Info
         run: |
@@ -120,22 +362,41 @@ jobs:
           path: bot_session.session
           key: telegram-session-${{ runner.os }}-bot_session
 
-      - name: Send APKs to Telegram
+      # ---------------------------------------------------
+      # Send the APK to Telegram
+      # Uses deploy_artifacts.py script
+      # APK_PATH points to the downloaded artifact
+      # ---------------------------------------------------
+      - name: Send APK to Telegram
         env:
           API_ID: ${{ secrets.TELEGRAM_API_ID }}
           API_HASH: ${{ secrets.TELEGRAM_API_HASH }}
           BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TOPIC_ID: ${{ secrets.TELEGRAM_TOPIC_ID }}
-          APK_PATH: ./downloaded-artifact/app-release-${{ needs.build.outputs.short_sha }}.apk
-        run: |
-          python ./.github/workflows/deploy_artifacts.py
+          APK_PATH: ./downloaded-artifact/app-${{ needs.build.outputs.build_type == 'Debug' && 'debug' || 'release' }}-${{ needs.build.outputs.short_sha }}.apk
+        run: python ./.github/workflows/deploy_artifacts.py
         continue-on-error: true
 
+
+
+  # =========================================================
+  # UPDATE APP DATA
+  #
+  # PURPOSE:
+  #   Fetch latest app metadata and commit it to the
+  #   host branch (about.json) after a successful build.
+  #
+  # NOTE:
+  #   This job always runs regardless of build type or
+  #   Telegram settings — it is not user-configurable.
+  # =========================================================
   updateAppData:
     name: Update App Data
     runs-on: ubuntu-latest
+
     steps:
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -146,8 +407,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install Dependencies
-        run: |
-          pip install requests
+        run: pip install requests
 
       - name: Run Update App Script
         run: python .github/workflows/update_app_data.py
@@ -163,4 +423,5 @@ jobs:
           git commit -m "feat: Update app about screen data"
           git push
         continue-on-error: true
-      
+
+        
