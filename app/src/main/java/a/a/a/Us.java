@@ -84,10 +84,10 @@ public class Us extends Rs {
       }
 
       var2.setText(var4);
-      var2.setTextSize(10.0F);
+      var2.setTextSize(20.0F);
       var2.setPadding(0, 0, 0, 0);
       var2.setGravity(16);
-      var2.setTextColor(-1);
+      var2.setTextColor(0xffffc107);
       var2.setTypeface((Typeface)null, 1);
       RelativeLayout.LayoutParams var5 = new RelativeLayout.LayoutParams(-2, super.G);
       var5.setMargins(0, 0, 0, 0);
