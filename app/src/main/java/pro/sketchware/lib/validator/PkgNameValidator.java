@@ -1,5 +1,7 @@
 package pro.sketchware.lib.validator;
 
+import android.content.Context;
+
 import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.ArrayList;
@@ -8,17 +10,22 @@ import java.util.Set;
 
 import a.a.a.uq;
 
+import pro.sketchware.R;
+
 
 
 
 // =========================================================
-// PkgNameValidator = Package Name Validator (pure logic)
+// PkgNameValidator = Package Name Validator (logic + messages)
 // =========================================================
 
 // PURPOSE:
-    // Pure validation logic for package names, extracted out of
+    // Validation logic for package names, extracted out of
     // PackageNameValidatorW so the rules can be unit-tested and
     // reused without an Android View / TextWatcher attached.
+    // Message resolution (getString calls) lives here too, at the
+    // caller's request — takes Context in directly rather than
+    // going through the MB field.
 
 // BEHAVIOR — CHANGED FROM ORIGINAL:
     // The original PackageNameValidator stopped at the first failed
@@ -43,12 +50,27 @@ import a.a.a.uq;
     // a reserved word from detection. e.g. ". public.my.pkg."
     // still flags "public" even with the leading ". " in front of it.
 
+// STRING RESOURCES USED:
+    // 4 reused from the original PackageNameValidator, modified to
+    // add a %1$s detail placeholder where noted:
+        // invalid_value_max_lenth                  (unchanged)
+        // invalid_value_rule_2                      (added %1$s)
+        // myprojects_settings_message_contain_dot   (unchanged)
+        // logic_editor_message_reserved_keywords    (added %1$s)
+    // 4 new, for cases the original never separately reported:
+        // invalid_pkg_empty
+        // invalid_pkg_starts_with_dot
+        // invalid_pkg_ends_with_dot
+        // invalid_pkg_consecutive_dots
+
 // USAGE:
     // ValidationResult r = PkgNameValidator.validate ("com.example.app");
     // ValidationResult r = PkgNameValidator.validateFile (someFile);
     // ValidationResult r = PkgNameValidator.validatePath ("/src/com/example/App.java");
     // r.isValid();
     // r.getIssues();  // full list, empty if valid
+    //
+    // String message = PkgNameValidator.buildCombinedMessage (context, r.getIssues(), strResId);
 
 // =========================================================
 
@@ -164,6 +186,65 @@ public final class PkgNameValidator {
         while ( normalized.endsWith ("/") )   normalized = normalized.substring (0, normalized.length() - 1);
 
         return normalized.replace ('/', '.');
+    }
+
+
+
+
+    // =========================================================
+    // PUBLIC METHODS — message resolution
+    // =========================================================
+
+    // Joins every issue's resolved message into one string.
+    // Single issue → plain line. Multiple → "- " bulleted list.
+    // strResId → optional @StringRes override, applied only to TOO_LONG
+    // (matches original PackageNameValidator quirk — see class header).
+    public static String buildCombinedMessage (Context context, List<Issue> issues, int strResId) {
+        if (issues.size() == 1) {
+            return resolveMessage (context, issues.get (0), strResId);
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for ( Issue issue : issues ) {
+            if ( sb.length() > 0 ) sb.append ("\n");
+            sb.append ("- ").append ( resolveMessage (context, issue, strResId) );
+        }
+        return sb.toString();
+    }
+
+    // Maps a single Issue to its localized, detail-filled error string.
+    // NOTE: strResId override only applies to TOO_LONG — see class header FLAGGED note.
+    public static String resolveMessage (Context context, Issue issue, int strResId) {
+        switch ( issue.getReason() ) {
+            case EMPTY:
+                return context.getString (R.string.invalid_pkg_empty);
+
+            case TOO_LONG:
+                return (strResId == 0)
+                    ? context.getString (R.string.invalid_value_max_lenth, MAX_LENGTH)
+                    : context.getString (strResId, MAX_LENGTH);
+
+            case STARTS_WITH_DOT:
+                return context.getString (R.string.invalid_pkg_starts_with_dot);
+
+            case INVALID_CHARS:
+                return context.getString (R.string.invalid_value_rule_2, issue.getDetail());
+
+            case RESERVED_KEYWORD:
+                return context.getString (R.string.logic_editor_message_reserved_keywords, issue.getDetail());
+
+            case CONSECUTIVE_DOTS:
+                return context.getString (R.string.invalid_pkg_consecutive_dots);
+
+            case MISSING_DOT:
+                return context.getString (R.string.myprojects_settings_message_contain_dot);
+
+            case ENDS_WITH_DOT:
+                return context.getString (R.string.invalid_pkg_ends_with_dot);
+
+            default:
+                return null;
+        }
     }
 
 
