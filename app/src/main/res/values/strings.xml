@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SW Magd</string>
+    <string name="app_name">Sketchware Pro</string>
     <string name="appbar_scrolling_view_behavior">com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior</string>
     <string name="besome_blog_url">http://medium.com/sketchware</string>
     <string name="block_add_list_int_body_1">to</string>
@@ -1389,7 +1389,7 @@ Do you want to continue?"</string>
     <string name="invalid_value_max_lenth">You can use maximum %1$d letters</string>
     <string name="invalid_value_min_lenth">Use at least %d letter(s)</string>
     <string name="invalid_value_rule_1">Only use letters(a-z), numbers and Special characters(.),(@)</string>
-    <string name="invalid_value_rule_2">Only use letters(a-z), numbers and Special characters(.).\nRemove {%1$s}.</string>
+    <string name="invalid_value_rule_2">Only use letters(a-z), numbers and Special characters (.).\n    Remove {%1$s}.</string>
     <string name="invalid_value_rule_3">Only use letters(a-z), numbers and Special characters(_)</string>
     <string name="invalid_value_rule_4">Only use small letters(a-z), numbers and special character(_)</string>
     <string name="invalid_value_rule_5">"Special letters(&amp;, &lt;, >, \", ') are not allowed"</string>
@@ -1415,7 +1415,7 @@ Please try again after removing the blocks with this list"</string>
 Please try again after removing the blocks with this variable"</string>
     <string name="logic_editor_message_name_requied">A valid name for Moreblock is required</string>
     
-    <string name="logic_editor_message_reserved_keywords">"Can't use reserved keywords.\nRemove {%1$s}."</string>
+    <string name="logic_editor_message_reserved_keywords">"Can't use reserved keywords.\n    Remove {%1$s}."</string>
     <string name="invalid_pkg_empty">Package name can\'t be empty.</string>
     <string name="invalid_pkg_starts_with_dot">Can\'t start with a dot.</string>
     <string name="invalid_pkg_ends_with_dot">Can\'t end with a dot.</string>
