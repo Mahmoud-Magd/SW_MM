@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import a.a.a.uq;
+import a.a.a./*ConstantArrays*/ uq;
 
 import pro.sketchware.R;
 
@@ -290,7 +290,7 @@ public final class PkgNameValidator {
         for ( String token : input.split (TOKEN_SPLIT_REGEX) ) {
             if ( token.isEmpty() ) continue;
 
-            for ( String reserved : uq.b ) {
+            for ( String reserved : /*ConstantArrays*/ uq./*RESERVED_WORDS*/ b ) {
                 if ( reserved.equals (token) ) {
                     found.add (token);
                     break;
