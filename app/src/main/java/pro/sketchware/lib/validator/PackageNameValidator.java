@@ -4,69 +4,92 @@ import android.content.Context;
 
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.regex.Pattern;
+import a.a.a./*BaseValidatorW*/ MB;
 
-import a.a.a.MB;
-import a.a.a.uq;
-import pro.sketchware.R;
 
-public class PackageNameValidator extends MB {
 
-    private static final Pattern packagePattern = Pattern.compile("([a-zA-Z][a-zA-Z\\d]*\\.)*[a-zA-Z][a-zA-Z\\d]*");
 
-    public PackageNameValidator(Context context, TextInputLayout textInputLayout) {
-        super(context, textInputLayout);
+// =========================================================
+// /*PackageNameValidatorW*/ PackageNameValidator = Package Name Validator (Watcher)
+// =========================================================
+
+// PURPOSE:
+    // Thin TextWatcher/View glue over PkgNameValidator.
+    // All validation logic AND message resolution live in PkgNameValidator.
+    // This class only wires the watcher to
+        // a TextInputLayout and forwards Context + strResId through.
+
+// RENAME NOTE:
+    // Renamed from PackageNameValidator → PackageNameValidatorW,
+    // "W" for Watcher, to disambiguate from the logic-holding PkgNameValidator class.
+
+// USAGE:
+    // Prefer the TIL-only constructor:
+        // new PackageNameValidator (myTil);
+    // The Context+TIL constructor still exists only because MB
+    // itself still exposes it — see MB's own TODO block.
+
+// =========================================================
+
+// TODO:
+    // ======= CONSTRUCTOR =======
+        // DELETE the "PackageNameValidator (Context ..., TextInputLayout ...) {...}"
+            // constructor below once MB's own deprecated
+            // Context+TextInputLayout constructor is deleted.
+            // Kept only in lockstep with MB right now.
+
+        // Please use "PackageNameValidator (TextInputLayout ...) {...}" instead
+            // Context is pulled from the TIL via inherited getCtx(),
+            // so there's no reason to pass it separately.
+
+// =========================================================
+
+public class PackageNameValidator extends /*BaseValidatorW*/ MB {
+
+
+
+
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
+    public PackageNameValidator (TextInputLayout textInputLayout) { super (textInputLayout); }
+
+    /*TODO: DELETE THIS ↓↓↓*/
+    // Mirrors MB's own deprecated Context+TIL constructor.
+    // Delete this one the same day MB's is deleted — see TODO above.
+    /** @deprecated Use {@link #PackageNameValidator(TextInputLayout)} instead. */
+    @Deprecated (since = "7.0.0", forRemoval = true)
+    public PackageNameValidator (Context context, TextInputLayout textInputLayout) {
+        super (context, textInputLayout);
     }
+    /*TODO: DELETE THIS ↑↑↑*/
+
+
+
+
+    // =========================================================
+    // TextWatcher OVERRIDE
+    // =========================================================
 
     @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (s.toString().trim().length() > 50) {
-            b.setErrorEnabled(true);
-            if (e == 0) {
-                b.setError(a.getString(R.string.invalid_value_max_lenth, 50));
-            } else {
-                //what ???
-                b.setError(a.getString(e, 50));
-            }
-            d = false;
-            return;
-        }
-        b.setErrorEnabled(false);
-        d = true;
-        if (!packagePattern.matcher(s.toString()).matches()) {
-            b.setErrorEnabled(true);
-            b.setError(a.getString(R.string.invalid_value_rule_2));
-            d = false;
-        } else {
-            if (!s.toString().contains(".")) {
-                b.setErrorEnabled(true);
-                b.setError(a.getString(R.string.myprojects_settings_message_contain_dot));
-                d = false;
-                return;
-            }
-            b.setErrorEnabled(false);
-            d = true;
-        }
-        boolean containsReservedWord = false;
-        for (String packagePart : s.toString().split("\\.")) {
-            String[] reservedWords = uq.b;
-            int length = reservedWords.length;
-            int reservedWordIndex = 0;
-            while (true) {
-                if (reservedWordIndex >= length) {
-                    break;
-                }
-                if (reservedWords[reservedWordIndex].equals(packagePart)) {
-                    containsReservedWord = true;
-                    break;
-                }
-                reservedWordIndex++;
-            }
-        }
-        if (containsReservedWord) {
-            b.setErrorEnabled(true);
-            b.setError(a.getString(R.string.logic_editor_message_reserved_keywords));
-            d = false;
-        }
+    public void onTextChanged (CharSequence s, int start, int before, int count) {
+        PkgNameValidator.ValidationResult result = PkgNameValidator.validate (s);
+        
+        boolean isValid = result.isValid();
+        getTil().setErrorEnabled ( ! isValid );
+
+        
+        /*MB.isValid*/ d = isValid;
+
+        if ( ! isValid )
+            getTil().setError (
+                PkgNameValidator.buildCombinedMessage ( getCtx(), result.getIssues(), getStrResId() )
+            );
     }
+
+
+
+
 }
+
+
