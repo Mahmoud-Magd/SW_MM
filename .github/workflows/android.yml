@@ -135,7 +135,7 @@ jobs:
             # Config file exists — read the AUTO_RUN_ON_PUSH value
             AUTO_RUN_ON_PUSH=$(grep -m1 "^AUTO_RUN_ON_PUSH=" .github/ci_config | cut -d'=' -f2 | tr -d '[:space:]')
 
-            if [ "$AUTO_RUN" = "true" ]; then
+            if [ "$AUTO_RUN_ON_PUSH" = "true" ]; then
               echo "should_run=true" >> $GITHUB_OUTPUT
             else
               echo "should_run=false" >> $GITHUB_OUTPUT
@@ -300,16 +300,25 @@ jobs:
       # BUILD — correct Gradle task based on build type
       # ---------------------------------------------------
       - name: Build APK
+        id: build_apk
         env:
           SKETCHUB_API_KEY: ${{ secrets.SKETCHUB_API_KEY }}
         run: |
+          set -o pipefail
           chmod +x gradlew
 
           if [ "${{ steps.resolve_build_type.outputs.build_type }}" = "Debug" ]; then
-            ./gradlew assembleDebug
+            ./gradlew assembleDebug 2>&1 | tee build-error.log
           else
-            ./gradlew assembleRelease
+            ./gradlew assembleRelease 2>&1 | tee build-error.log
           fi
+
+      - name: Upload Build Error Log
+        if: failure() && steps.build_apk.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-error-log-${{ steps.resolve_build_type.outputs.build_type == 'Debug' && 'debug' || 'release' }}-${{ github.sha }}
+          path: build-error.log
 
       - name: Set short SHA
         id: set_sha
@@ -438,3 +447,6 @@ jobs:
           git commit -m "feat: Update app about screen data"
           git push
         continue-on-error: true
+
+
+        
