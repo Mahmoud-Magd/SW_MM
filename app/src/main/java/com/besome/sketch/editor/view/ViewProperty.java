@@ -70,7 +70,6 @@ public class ViewProperty extends LinearLayout implements Kw {
     private boolean showAllVisible = true;
 
     private OnPropertyMovedListener onPropertyMovedListener;
-    private OnPropertyDeletedListener onPropertyDeletedListener;
 
     public ViewProperty(Context context) {
         super(context);
@@ -95,7 +94,7 @@ public class ViewProperty extends LinearLayout implements Kw {
     }
 
     public void setOnPropertyMovedListener(OnPropertyMovedListener onPropertyMovedListener) {
-        this.onPropertyMovedListener = onPropertyMovedListenef;
+        this.onPropertyMovedListener = onPropertyMovedListener;
     }
 
     public void setOnPropertyDeletedListener(OnPropertyDeletedListener onPropertyDeletedListener) {
@@ -529,3 +528,5 @@ public class ViewProperty extends LinearLayout implements Kw {
         }
     }
 }
+
+
