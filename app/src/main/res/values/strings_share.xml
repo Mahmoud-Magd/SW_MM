@@ -1,0 +1,52 @@
+<resources>
+    <string name="share_block_information_step_desc">Input description and screenshot about this block</string>
+    <string name="share_block_information_step_name">Block Information</string>
+    <string name="share_block_information_title_block_name">Block Name</string>
+    <string name="share_block_message_uploading_block_data">Uploading Block Data</string>
+    <string name="share_block_message_uploading_more_block_data">Uploading More Block Data</string>
+    <string name="share_block_review_information_step_desc">Please review the information below. If they are all correct, click on \"Share\"..</string>
+    <string name="share_block_review_information_step_name">Review Information</string>
+    <string name="share_block_select_favorite_block_message_favorite_block">"Please select a block you'd like to share"</string>
+    <string name="share_block_select_favorite_block_step_desc">"Select block you'd like to share"</string>
+    <string name="share_block_select_favorite_block_step_name">Select Block</string>
+    <string name="share_block_select_favorite_more_block_step_desc">"Select more block you'd like to share"</string>
+    <string name="share_block_select_favorite_more_block_step_name">Select More Block</string>
+    <string name="share_block_select_required_fonts_step_desc">Select font needed for this block</string>
+    <string name="share_block_select_required_fonts_step_name">Select Font</string>
+    <string name="share_block_select_required_images_step_desc">Select image needed for this block</string>
+    <string name="share_block_select_required_images_step_name">Select Image</string>
+    <string name="share_block_select_required_sounds_step_desc">Select sound needed for this block</string>
+    <string name="share_block_select_required_sounds_step_name">Select Sound</string>
+    <string name="share_collection_inform_message_input_tag">Text tag about this collection to add</string>
+    <string name="share_collection_inform_message_limit_tag_count">Exceeded the number of tags that can be added</string>
+    <string name="share_collection_inform_message_no_input_tag">No tag to add</string>
+    <string name="share_collection_inform_message_tag_added_already">Already added tag</string>
+    <string name="share_collection_inform_message_tag_middle_sharp">"\# can't be in the middle of tag"</string>
+    <string name="share_collection_inform_title_related_tag">Related Tag</string>
+    <string name="share_collection_inform_title_tag">Tag</string>
+    <string name="share_collection_information_message_desc_length">The text length is invalid. Please double check the length of your collection information.</string>
+    <string name="share_collection_information_message_hint_long_desc">Text about this collection in detail</string>
+    <string name="share_collection_information_message_hint_short_desc">Text about this collection in short</string>
+    <string name="share_collection_information_message_screenshots">At least one screenshot is needed</string>
+    <string name="share_collection_information_message_short_desc">Please explain this collection in short description</string>
+    <string name="share_collection_information_title_long_desc">Long Description</string>
+    <string name="share_collection_information_title_screenshots">Screenshot</string>
+    <string name="share_collection_information_title_short_desc">Short Description</string>
+    <string name="share_collection_message_dialog_delete_upload_data">The data for uploading is all removed. Do you want to continue?</string>
+    <string name="share_collection_select_favorite_collection_message_no_data">"No collection to share.
+
+Please try again after adding at least one collection."</string>
+    <string name="share_collection_select_required_collection_message_no_data">No collection to share.</string>
+    <string name="share_more_block_information_title_more_block_name">More Block Name</string>
+    <string name="share_view_information_step_desc">Input description and screenshot about this view</string>
+    <string name="share_view_information_step_name">View Information</string>
+    <string name="share_view_information_title_view_name">View Name</string>
+    <string name="share_view_message_uploading_view_data">Uploading View Data</string>
+    <string name="share_view_review_information_step_desc">Please review the information below. If they are all correct, click on \"Share\"..</string>
+    <string name="share_view_review_information_step_name">Review Information</string>
+    <string name="share_view_select_favorite_view_message_favorite_view">"Please select a view you'd like to share"</string>
+    <string name="share_view_select_favorite_view_step_desc">"Select view you'd like to share"</string>
+    <string name="share_view_select_favorite_view_step_name">Select View</string>
+    <string name="share_view_select_required_images_step_desc">Select image needed for this view</string>
+    <string name="share_view_select_required_images_step_name">Select Image</string>
+</resources>

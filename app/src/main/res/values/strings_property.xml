@@ -1,0 +1,71 @@
+<resources>
+    <string name="property_ad_size">Ad size</string>
+    <string name="property_alpha">Alpha</string>
+    <string name="property_background_color">Background color</string>
+    <string name="property_background_resource">Background resource</string>
+    <string name="property_checked">Checked</string>
+    <string name="property_choice_mode">Choice mode</string>
+    <string name="property_clickable">Clickable</string>
+    <string name="property_custom_view_listview">Custom view</string>
+    <string name="property_inject">Custom attributes</string>
+    <string name="property_convert">Convert</string>
+    <string name="property_description_component_intent_usage">"Follow these examples! It may result in a runtime error if you don't!
+
+ACTION_CALL, ACTION_DIAL
+ tel:number (tel:12345678)
+
+ACTION_VIEW
+ url type (http://sketchware.io)"</string>
+    <string name="property_description_edittext_ime_options">"It does not work when single_line is 'false' and input_type is 'text'"</string>
+    <string name="property_divider_height">Divider height</string>
+    <string name="property_enabled">Enabled</string>
+    <string name="property_first_day_of_week">firstDayOfWeek</string>
+    <string name="property_gravity">Gravity</string>
+    <string name="property_group_basic">Basic</string>
+    <string name="property_group_event">Event</string>
+    <string name="property_group_recent">Recent</string>
+    <string name="property_header_image">Image Properties</string>
+    <string name="property_header_layout">Layout Properties</string>
+    <string name="property_header_seekbar">SeekBar Properties</string>
+    <string name="property_header_text">Text Properties</string>
+    <string name="property_header_view">View Properties</string>
+    <string name="property_hint">Hint</string>
+    <string name="property_hint_color">Hint color</string>
+    <string name="property_hint_enter_value">Enter value</string>
+    <string name="property_id">ID</string>
+    <string name="property_image">Image</string>
+    <string name="property_ime_option">Ime option</string>
+    <string name="property_indeterminate">Indeterminate</string>
+    <string name="property_input_type">Input type</string>
+    <string name="property_layout_gravity">Layout gravity</string>
+    <string name="property_layout_height">Height</string>
+    <string name="property_layout_width">Width</string>
+    <string name="property_lines">Lines</string>
+    <string name="property_margin">Margin</string>
+    <string name="property_max">Max</string>
+    <string name="property_orientation">Orientation</string>
+    <string name="property_padding">Padding</string>
+    <string name="property_parent_attr">Parent attributes</string>
+    <string name="property_progress">Progress</string>
+    <string name="property_progressbar_style">Progress bar style</string>
+    <string name="property_resource">Resource</string>
+    <string name="property_rotate">Rotate</string>
+    <string name="property_scale_type">Scale type</string>
+    <string name="property_scale_x">ScaleX</string>
+    <string name="property_scale_y">ScaleY</string>
+    <string name="property_single_line">Single line</string>
+    <string name="property_spinner_mode">Spinner mode</string>
+    <string name="property_text">Text</string>
+    <string name="property_text_color">Text color</string>
+    <string name="property_text_font">Text font</string>
+    <string name="property_text_size">Text size</string>
+    <string name="property_text_style">Text style</string>
+    <string name="property_translation_x">TranslationX</string>
+    <string name="property_translation_y">TranslationY</string>
+    <string name="property_weight">Weight</string>
+    <string name="property_weight_sum">Weight sum</string>
+    <string name="property_visibility">Visibility</string>
+    <string name="property_animate_layout_changes">Animate layout changes</string>
+    <string name="property_enter_value">Enter %s value</string>
+
+</resources>
