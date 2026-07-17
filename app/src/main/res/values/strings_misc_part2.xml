@@ -1,0 +1,92 @@
+<resources>
+    <string name="local_library_manager_dependency_example">Example: org.ow2.asm:asm:9.5</string>
+    <string name="local_library_manager">Local library Manager</string>
+    <string name="local_library_manager_download">Download a library</string>
+    <string name="local_library_manager_enter_dependency">Enter dependency</string>
+    <string name="local_library_manager_dependency_info">You can find the dependency of a library in GitHub, typically in the Readme file.</string>
+    <string name="local_library_manager_no_libraries_title">No Local libraries available</string>
+    <string name="local_library_manager_no_libraries_body">You don\'t have any Local libraries yet, try downloading one.</string>
+    <string name="local_library_manager_download_status">Download status</string>
+    <string name="local_library_manager_skip_downloading_dependencies">Skip downloading sub-dependencies</string>
+    <string name="signatures_title">Signatures</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_appearance_description">Change the Sketchware appearance</string>
+    <string name="settings_appearance_theme">Sketchware Theme</string>
+    <string name="settings_appearance_theme_system">System default</string>
+    <string name="settings_appearance_theme_light">Light theme</string>
+    <string name="settings_appearance_theme_dark">Dark theme</string>
+    <string name="settings_events_manager">Events manager</string>
+    <string name="settings_events_manager_activity_events">Activity events</string>
+    <string name="settings_events_manager_listeners">Listeners</string>
+    <string name="settings_events_manager_details">Events manager Details</string>
+    <string name="settings_block_selector">Block Selector Manager</string>
+
+    <!--  files manager screen  -->
+    <string name="assets_manager_title">Assets Manager</string>
+    <string name="assets_manager_options">Create or import</string>
+    <string name="assets_manager_add_new">Create new</string>
+    <string name="assets_manager_add_file">Import file</string>
+    <string name="assets_manager_nofiles_title">No files here</string>
+    <string name="assets_manager_nofiles_body">You don\'t have any files here yet, try creating one.</string>
+    <string name="assets_manager_rename">Rename</string>
+
+    <!--  about the team screen  -->
+    <string name="about_title">About Sketchware Pro</string>
+    <string name="about_team_title">The team</string>
+    <string name="about_specialthanks_title">Special Thanks</string>
+    <string name="about_changelog_title">Changelog</string>
+    <string name="about_beta_changes_title">Beta Changes</string>
+    <string name="about_loading_title">Getting data…</string>
+    <string name="about_loading_subtitle">Don\'t worry, it won\'t take more than a second.</string>
+    <string name="about_joindiscord">Join our Discord server</string>
+
+    <!--  links  -->
+    <string name="link_github_release">https://github.com/Sketchware-Pro/Sketchware-Pro/releases</string>
+    <string name="link_docs_url">https://docs.sketchware.pro</string>
+    <string name="link_ideas_url">https://discord.gg/4uxhMwCt</string>
+    <string name="link_discord_invite">https://discord.gg/kq39yhT4rX</string>
+    <string name="link_telegram_invite">https://t.me/sketchwarepro</string>
+    <string name="link_about_team">https://sketchware-pro.github.io/Sketchware-Pro/about.json</string>
+    <string name="link_github_commits_url"><![CDATA[https://api.github.com/repos/Sketchware-Pro/Sketchware-Pro/commits?per_page=%s&page=%s]]></string>
+    <string name="link_github_url">https://github.com/Sketchware-Pro/Sketchware-Pro</string>
+    <string name="link_sw_assist">https://play.google.com/store/apps/details?id=com.w3wide.swassist</string>
+
+
+    <string name="github_api_error_message">Something went wrong. Please wait and try again.</string>
+    <string name="github_api_date_unavailable">Date unavailable</string>
+    <string name="change_launcher_activity_dialog_title">Launcher Activity</string>
+    <string name="change_firebase_config_title">Change Firebase Config</string>
+    <string name="delete_custom_activity_dialog_message">All features related to %1$s will be removed. Are you sure?</string>
+    <string name="delete_custom_activity_dialog_title">Delete Activity</string>
+    <string name="delete_project_dialog_title">Delete project</string>
+    <string name="delete_project_dialog_message">Are you sure you want to delete this project named %1$s?</string>
+    <string name="src_code_editor_unsaved_changes_dialog_warning_message">You have unsaved changes. Are you sure you want to exit?</string>
+    <string name="review_firebase_config_title">Review</string>
+    <string name="edit_view_properties_title">Edit Properties</string>
+    <string name="cancel">Cancel</string>
+    <string name="restore">Restore</string>
+    <string name="searching">Searching…</string>
+    <string name="restoring">Restoring…</string>
+    <string name="strings_xml">strings.xml</string>
+    <string name="xml_strings">XML Strings</string>
+
+    <string name="create_new_widget">Create a widget</string>
+    <string name="import_widgets">Import Widgets</string>
+    <string name="export_widgets">Export Widgets</string>
+    <string name="widget_editor">Widget editor</string>
+    <string name="widget_type_title">Widget type</string>
+    <string name="var_is_required">%s is required</string>
+    <string name="new_class">Or create a new category</string>
+    <string name="add_to">Add to category</string>
+    <string name="used_custom_blocks">Used Custom Blocks</string>
+    <string name="resources_manager_xml_load_failed_message">data loading failed in \"%s\" \nPlease open the code editor to fix the issue manually</string>
+    <string name="resources_manager_xml_load_failed_title">Data Loading Failed</string>
+    <string name="resources_manager_xml_important_note_title">Important Note :</string>
+    <string name="resources_manager_xml_important_note_message_strings">Changing the `app_name` value will directly affect this project\'s application name</string>
+    <string name="resources_manager_xml_important_note_message_colors">Changing primary colors will affect the app\'s visual theme, including buttons and highlights</string>
+    <string name="resources_editor_unsaved_changes_message">You have unsaved changes in \"%s\"\nDo you want to save your changes before quitting?</string>
+    <string name="resources_editor_unsaved_changes_message_variant_change">You have unsaved changes in \"%s\"\nDo you want to save your changes before changing the variant?</string>
+    <string name="save_to_collection">Save to collection</string>
+    <string name="unknown_attr">Unknown Attribute</string>
+    <string name="attr_already_exist">This attribute already exists</string>
+</resources>
